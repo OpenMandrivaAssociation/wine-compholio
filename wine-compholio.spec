@@ -110,7 +110,7 @@ BuildRequires:	prelink
 
 %define realver 1.7.19
 Version:        1.7.19
-Release:        Stan8
+Release:        Kyndek
 Summary:        An MS Windows Emulator (with pipelight patches)
 License:        LGPL-2.1+
 Group:          Emulators
@@ -172,7 +172,7 @@ Conflicts:      wine
 
 %if 0%{?suse_version} > 1120
 %ifarch x86_64
-Requires:       %{name}-32bit = %{version}
+Requires:       %{name}32 = %{version}
 %endif
 %endif
 %ifarch %ix86 x86_64
@@ -192,9 +192,6 @@ Recommends:     alsa-plugins-pulse
 # for winetricks:
 Requires:       cabextract
 Requires:       unzip
-%if 0%{?suse_version} > 1220
-BuildRequires:  gpg-offline
-%endif
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %description
