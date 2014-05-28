@@ -110,7 +110,7 @@ BuildRequires:	prelink
 
 %define realver 1.7.19
 Version:        1.7.19
-Release:        Kyndek
+Release:        1
 Summary:        An MS Windows Emulator (with pipelight patches)
 License:        LGPL-2.1+
 Group:          Emulators
@@ -390,19 +390,19 @@ tar xjf %{SOURCE5}
 %endif
 
 # find the implicit dependencies
-##%define winedir %_builddir/%prjname-%realver/
-##cat >%winedir/my-find-requires.sh <<EOF
-###!/bin/bash
-##%{__find_requires}
-##%ifarch x86_64
-##grep SONAME_ %winedir/config.log|grep -v 'so"'|sed -e 's/^.*"\(.*\)".*$/\1()(64bit)/;'|sort -u
-##%else
-##grep SONAME_ %winedir/config.log|grep -v 'so"'|sed -e 's/^.*"\(.*\)".*$/\1/;'|sort -u
-##%endif
-##EOF
-##chmod 755 %winedir/my-find-requires.sh
-%define _use_internal_dependency_generator 1
-##%define __find_requires %winedir/my-find-requires.sh
+%define winedir %_builddir/%prjname-%realver/
+cat >%winedir/my-find-requires.sh <<EOF
+#!/bin/bash
+%{__find_requires}
+%ifarch x86_64
+grep SONAME_ %winedir/config.log|grep -v 'so"'|sed -e 's/^.*"\(.*\)".*$/\1()(64bit)/;'|sort -u
+%else
+grep SONAME_ %winedir/config.log|grep -v 'so"'|sed -e 's/^.*"\(.*\)".*$/\1/;'|sort -u
+%endif
+EOF
+chmod 755 %winedir/my-find-requires.sh
+%define _use_internal_dependency_generator 0
+%define __find_requires %winedir/my-find-requires.sh
 
 %clean
 rm -rf %{buildroot}
