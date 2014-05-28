@@ -1,3 +1,5 @@
 sources:
-  "ubuntuwine.tar.bz2": 2eda50b3c2bbd642830ea727444616b548d94203
-  "wine-1.7.19.tar.bz2": ee142be03db09290b4adcdf1d412ee1850acd1e9
+  ubuntuwine.tar.bz2: 2eda50b3c2bbd642830ea727444616b548d94203
+  wine-1.7.19.tar.bz2: ee142be03db09290b4adcdf1d412ee1850acd1e9
+  wine-1.7.19.tar.bz2.sign: 91960e0f78c84f9b30f0ccfa024a878ee0a866ab
+  wine.keyring: 171a6f5706d4bd44a5e34238bdb09a90b8a338c4

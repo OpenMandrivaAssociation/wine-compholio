@@ -1,19 +1,20 @@
-From 81bfee65674a81a826b32629e218e457b5ef6b4b Mon Sep 17 00:00:00 2001
+From c6052d785f4419a80ca091d978ee1ff3e7400ca9 Mon Sep 17 00:00:00 2001
 From: "Erich E. Hoover" <erich.e.hoover@gmail.com>
-Date: Thu, 13 Feb 2014 16:07:15 -0700
+Date: Fri, 18 Apr 2014 14:08:36 -0600
 Subject: server: Inherit security attributes from parent directories on
  creation.
 
 ---
- dlls/advapi32/tests/security.c |   40 ++++++++++-
+ dlls/advapi32/tests/security.c |   40 +++++++++++-
  server/change.c                |    2 +-
- server/file.c                  |  146 +++++++++++++++++++++++++++++++++++++++-
+ server/file.c                  |  141 +++++++++++++++++++++++++++++++++++++++-
  server/file.h                  |    2 +-
- 4 files changed, 184 insertions(+), 6 deletions(-)
+ 4 files changed, 179 insertions(+), 6 deletions(-)
 
-diff -rupN a/dlls/advapi32/tests/security.c b/dlls/advapi32/tests/security.c
---- a/dlls/advapi32/tests/security.c	2014-05-03 12:11:14.800967962 +0200
-+++ b/dlls/advapi32/tests/security.c	2014-05-03 12:23:10.072023749 +0200
+diff --git a/dlls/advapi32/tests/security.c b/dlls/advapi32/tests/security.c
+index 48a3291..f3a3c09 100644
+--- a/dlls/advapi32/tests/security.c
++++ b/dlls/advapi32/tests/security.c
 @@ -3030,10 +3030,11 @@ static void test_CreateDirectoryA(void)
      ACL_SIZE_INFORMATION acl_size;
      ACCESS_ALLOWED_ACE *ace;
@@ -27,11 +28,10 @@ diff -rupN a/dlls/advapi32/tests/security.c b/dlls/advapi32/tests/security.c
      DWORD error;
      PACL pDacl;
  
-@@ -3124,6 +3125,44 @@ static void test_CreateDirectoryA(void)
-         ok(ace->Mask == 0x1f01ff, "Administators Group ACE has unexpected mask (0x%x != 0x1f01ff)\n",
-                                   ace->Mask);
+@@ -3126,6 +3127,43 @@ static void test_CreateDirectoryA(void)
      }
-+    
+     LocalFree(pSD);
+ 
 +    /* Test inheritance of ACLs */
 +    strcpy(tmpfile, tmpdir);
 +    lstrcatA(tmpfile, "/tmpfile");
@@ -69,27 +69,27 @@ diff -rupN a/dlls/advapi32/tests/security.c b/dlls/advapi32/tests/security.c
 +    }
 +    CloseHandle(hTemp);
 +
-     LocalFree(pSD);
- 
  done:
+     HeapFree(GetProcessHeap(), 0, user);
+     bret = RemoveDirectoryA(tmpdir);
 diff --git a/server/change.c b/server/change.c
-index 0b7b979..14f37c3 100644
+index 77c01bb..2cf1cab 100644
 --- a/server/change.c
 +++ b/server/change.c
-@@ -292,7 +292,7 @@ static struct security_descriptor *dir_get_sd( struct object *obj )
+@@ -287,7 +287,7 @@ static struct security_descriptor *dir_get_sd( struct object *obj )
      assert( obj->ops == &dir_ops );
  
      fd = dir_get_fd( obj );
--    sd = file_get_acls( obj, fd, &dir->mode, &dir->uid );
-+    sd = file_get_acls( obj, fd, &dir->mode, &dir->uid, TRUE );
+-    sd = get_file_sd( obj, fd, &dir->mode, &dir->uid );
++    sd = get_file_sd( obj, fd, &dir->mode, &dir->uid, TRUE );
      release_object( fd );
      return sd;
  }
 diff --git a/server/file.c b/server/file.c
-index 0df2245..c115ff7 100644
+index 75f015b..6ce8806 100644
 --- a/server/file.c
 +++ b/server/file.c
-@@ -242,11 +242,141 @@ void set_xattr_acls( int fd, const struct security_descriptor *sd )
+@@ -245,11 +245,141 @@ void set_xattr_sd( int fd, const struct security_descriptor *sd, const SID *user
  #endif
  }
  
@@ -115,12 +115,10 @@ index 0df2245..c115ff7 100644
 +        parent_ace = (const ACE_HEADER *)(parent_dacl + 1);
 +        for (i = 0; i < parent_dacl->AceCount; i++, parent_ace = ace_next( parent_ace ))
 +        {
-+            int multiplier = 1;
-+
 +            if (!(parent_ace->AceFlags & inheritance_mask)) continue;
 +
-+            ace_count += multiplier;
-+            dacl_size += multiplier * parent_ace->AceSize;
++            ace_count++;
++            dacl_size += parent_ace->AceSize;
 +        }
 +        if(!ace_count) return sd; /* No inheritance */
 +
@@ -175,9 +173,10 @@ index 0df2245..c115ff7 100644
 +    return sd;
 +}
 +
-+static struct security_descriptor *file_get_parent_sd( struct fd *root, char *parent_name,
-+                                                       int is_dir )
++static struct security_descriptor *file_get_parent_sd( struct fd *root, const char *child_name,
++                                                       int child_len, int is_dir )
 +{
++    char *parent_name = strndup( child_name, child_len );
 +    struct security_descriptor *sd = NULL;
 +    int len = strlen( parent_name );
 +    mode_t parent_mode = 0555;
@@ -198,6 +197,7 @@ index 0df2245..c115ff7 100644
 +                         READ_CONTROL|ACCESS_SYSTEM_SECURITY,
 +                         FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,
 +                         FILE_OPEN_FOR_BACKUP_INTENT );
++    free(parent_name);
 +    if(parent_fd)
 +    {
 +        struct object *obj;
@@ -210,7 +210,7 @@ index 0df2245..c115ff7 100644
 +            fd = file_get_fd( obj );
 +            if (fd)
 +            {
-+                sd = file_get_acls( obj, fd, &file->mode, &file->uid, FALSE );
++                sd = get_file_sd( obj, fd, &file->mode, &file->uid, FALSE );
 +                release_object( fd );
 +            }
 +            if (sd)
@@ -228,26 +228,21 @@ index 0df2245..c115ff7 100644
                                     const struct security_descriptor *sd )
  {
 +    struct security_descriptor *temp_sd = NULL;
+     const SID *owner = NULL, *group = NULL;
      struct object *obj = NULL;
      struct fd *fd;
-     int flags;
-@@ -275,6 +405,15 @@ static struct object *create_file( struct fd *root, const char *nameptr, data_si
+@@ -279,6 +409,10 @@ static struct object *create_file( struct fd *root, const char *nameptr, data_si
      default:                set_error( STATUS_INVALID_PARAMETER ); goto done;
      }
  
++    /* Note: inheritance of security descriptors only occurs on creation when sd is NULL */
 +    if (!sd && (create == FILE_CREATE || create == FILE_OVERWRITE_IF))
-+    {
-+        /* Note: inheritance of security descriptors only occurs on creation when sd is NULL */
-+        char *child_name = strndup( nameptr, len );
-+
-+        sd = temp_sd = file_get_parent_sd( root, child_name, options & FILE_DIRECTORY_FILE );
-+        free(child_name);
-+    }
++        sd = temp_sd = file_get_parent_sd( root, nameptr, len, options & FILE_DIRECTORY_FILE );
 +
      if (sd)
      {
-         const SID *owner = sd_get_owner( sd );
-@@ -315,6 +454,7 @@ static struct object *create_file( struct fd *root, const char *nameptr, data_si
+         owner = sd_get_owner( sd );
+@@ -322,6 +456,7 @@ static struct object *create_file( struct fd *root, const char *nameptr, data_si
      release_object( fd );
  
  done:
@@ -255,43 +250,43 @@ index 0df2245..c115ff7 100644
      free( name );
      return obj;
  }
-@@ -659,7 +799,7 @@ void convert_generic_sd( struct security_descriptor *sd )
+@@ -538,7 +673,7 @@ void convert_generic_sd( struct security_descriptor *sd )
  }
  
- struct security_descriptor *file_get_acls( struct object *obj, struct fd *fd, mode_t *mode,
--                                           uid_t *uid )
-+                                           uid_t *uid, int convert_generic )
+ struct security_descriptor *get_file_sd( struct object *obj, struct fd *fd, mode_t *mode,
+-                                         uid_t *uid )
++                                         uid_t *uid, int convert_generic )
  {
      int unix_fd = get_unix_fd( fd );
-     struct security_descriptor *sd;
-@@ -677,7 +817,7 @@ struct security_descriptor *file_get_acls( struct object *obj, struct fd *fd, mo
+     struct stat st;
+@@ -556,7 +691,7 @@ struct security_descriptor *get_file_sd( struct object *obj, struct fd *fd, mode
      user = security_unix_uid_to_sid( st.st_uid );
      group = token_get_primary_group( current->process->token );
-     sd = get_xattr_acls( unix_fd, user, group );
+     sd = get_xattr_sd( unix_fd );
 -    if (sd) convert_generic_sd( sd );
 +    if (sd && convert_generic) convert_generic_sd( sd );
      if (!sd) sd = mode_to_sd( st.st_mode, user, group);
      if (!sd) return obj->sd;
  
-@@ -697,7 +837,7 @@ static struct security_descriptor *file_get_sd( struct object *obj )
+@@ -576,7 +711,7 @@ static struct security_descriptor *file_get_sd( struct object *obj )
      assert( obj->ops == &file_ops );
  
      fd = file_get_fd( obj );
--    sd = file_get_acls( obj, fd, &file->mode, &file->uid );
-+    sd = file_get_acls( obj, fd, &file->mode, &file->uid, TRUE );
+-    sd = get_file_sd( obj, fd, &file->mode, &file->uid );
++    sd = get_file_sd( obj, fd, &file->mode, &file->uid, TRUE );
      release_object( fd );
      return sd;
  }
 diff --git a/server/file.h b/server/file.h
-index 89b5888..0905fbb 100644
+index 43a234f..2f537cf 100644
 --- a/server/file.h
 +++ b/server/file.h
 @@ -125,7 +125,7 @@ extern mode_t sd_to_mode( const struct security_descriptor *sd, const SID *owner
- extern int file_set_acls( struct object *obj, struct fd *fd, const struct security_descriptor *sd,
-                           unsigned int set_info );
- extern struct security_descriptor *file_get_acls( struct object *obj, struct fd *fd, mode_t *mode,
--                                                  uid_t *uid );
-+                                                  uid_t *uid, int convert_generic );
+ extern int set_file_sd( struct object *obj, struct fd *fd, const struct security_descriptor *sd,
+                         unsigned int set_info );
+ extern struct security_descriptor *get_file_sd( struct object *obj, struct fd *fd, mode_t *mode,
+-                                                uid_t *uid );
++                                                uid_t *uid, int convert_generic );
  
  /* file mapping functions */
  

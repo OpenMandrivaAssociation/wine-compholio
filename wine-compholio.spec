@@ -134,30 +134,34 @@ Source100:      wine-compholio.rpmlintrc
 
 ### pipelight patches
 # From: http://fds-team.de/mirror/wine-patches-minimal.tar.gz (minimal patch set)
-Patch1001:      0001-ws2_32-Ask-the-server-to-process-unsupported-WSAIoct.patch
-Patch1002:      0002-server-Implement-an-interface-change-notification-ob.patch
-Patch1003:      0003-ws2_32-Add-an-interactive-test-for-interface-change-.patch
-Patch1004:      0004-server-Unify-the-storage-of-security-attributes-for-.patch
-Patch1005:      0005-server-Unify-the-retrieval-of-security-attributes-fo.patch
-Patch1006:      0006-server-Store-file-security-attributes-with-extended-.patch
-Patch1007:      0007-server-Retrieve-file-security-attributes-with-extend.patch
-Patch1008:      0008-server-Convert-return-of-file-security-masks-with-ge.patch
-Patch1009:      0009-server-Inherit-security-attributes-from-parent-direc.patch
-Patch1010:      0010-server-Inherit-security-attributes-from-parent-direc.patch
-Patch1011:      0011-shell32-Set-the-default-security-attributes-for-user.patch
-Patch1012:      0012-kernel32-tests-Add-a-variety-of-tests-for-CompareStr.patch
-Patch1013:      0013-kernel32-Allow-CompareStringEx-NORM_LINGUISTIC_CASIN.patch
-Patch1014:      0014-kernel32-Allow-CompareStringEx-LINGUISTIC_IGNORECASE.patch
-Patch1015:      0015-winex11-Update-gl_drawable-for-embedded-windows.patch
-Patch1016:      0016-winex11-Enable-disable-windows-when-they-are-un-mapped.patch
-Patch1017:      0017-kernel32-Change-return-value-of-stub-SetNamedPipeHandl.patch
-Patch1018:      0018-winex11-Implement-X11DRV_FLUSH_GDI_DISPLAY-ExtEscape-c.patch
-Patch1019:      0019-user32-Decrease-minimum-SetTimer-interval-from-15-to.patch
-Patch1020:      0020-wined3d-Allow-to-set-strictDrawOrdering-via-environmen.patch
-Patch1021:      0021-quartz-tests-Add-tests-for-IVMRMonitorConfig-and-IVMRM.patch
-Patch1022:      0022-shlwapi-tests-Add-additional-tests-for-UrlCombine-and-.patch
-Patch1023:      0023-shlwapi-UrlCombineW-workaround-for-relative-paths.patch
-Patch1024:      0024-patch-list.patch
+Patch1001:      0001-server-Implement-socket-specific-ioctl-routine.patch
+Patch1002:      0002-server-Add-delayed-processing-for-socket-specific-io.patch
+Patch1003:      0003-server-Add-socket-side-support-for-the-interface-cha.patch
+Patch1004:      0004-server-Implement-the-interface-change-notification-o.patch
+Patch1005:      0005-ws2_32-Add-an-interactive-test-for-interface-change-.patch
+Patch1006:      0006-server-Unify-the-storage-of-security-attributes-for-.patch
+Patch1007:      0007-server-Unify-the-retrieval-of-security-attributes-fo.patch
+Patch1008:      0008-server-Store-file-security-attributes-with-extended-.patch
+Patch1009:      0009-server-Store-user-and-group-inside-stored-extended-f.patch
+Patch1010:      0010-server-Retrieve-file-security-attributes-with-extend.patch
+Patch1011:      0011-server-Convert-return-of-file-security-masks-with-ge.patch
+Patch1012:      0012-server-Inherit-security-attributes-from-parent-direc.patch
+Patch1013:      0013-server-Inherit-security-attributes-from-parent-direc.patch
+Patch1014:      0014-shell32-Set-the-default-security-attributes-for-user.patch
+Patch1015:      0015-server-Add-compatibility-code-for-handling-the-old-m.patch
+Patch1016:      0016-winex11-Update-gl_drawable-for-embedded-windows.patch
+Patch1017:      0017-winex11-Enable-disable-windows-when-they-are-un-mapped.patch
+Patch1018:      0018-kernel32-Change-return-value-of-stub-SetNamedPipeHandl.patch
+Patch1019:      0019-winex11-Implement-X11DRV_FLUSH_GDI_DISPLAY-ExtEscape-c.patch
+Patch1020:      0020-user32-Decrease-minimum-SetTimer-interval-to-5-ms.patch
+Patch1021:      0021-wined3d-Allow-to-set-strictDrawOrdering-via-environmen.patch
+Patch1022:      0022-quartz-tests-Add-tests-for-IVMRMonitorConfig-and-IVMRM.patch
+Patch1023:      0023-wined3d-Silence-repeated-resource_check_usage-FIXME.patch
+Patch1024:      0024-kernel32-Silence-repeated-CompareStringEx-FIXME.patch
+Patch1025:      0025-wined3d-Silence-repeated-wined3d_swapchain_present-F.patch
+Patch1026:      0026-shlwapi-tests-Add-additional-tests-for-UrlCombine-and-.patch
+Patch1027:      0027-shlwapi-UrlCombineW-workaround-for-relative-paths.patch
+Patch1028:      0028-patch-list.patch
 
 %if %{modpkgname}
   %if %{changedprefix}
@@ -228,7 +232,7 @@ libraries.
 
 ### Netflix patches
 
-#patch1001 -p1
+%patch1001 -p1
 %patch1002 -p1
 %patch1003 -p1
 %patch1004 -p1
@@ -239,19 +243,23 @@ libraries.
 %patch1009 -p1
 %patch1010 -p1
 %patch1011 -p1
-#patch1012 -p1
-#patch1013 -p1
-#patch1014 -p1
+%patch1012 -p1
+%patch1013 -p1
+%patch1014 -p1
 %patch1015 -p1
 %patch1016 -p1
 %patch1017 -p1
 %patch1018 -p1
-#patch1019 -p1
+%patch1019 -p1
 %patch1020 -p1
 %patch1021 -p1
 %patch1022 -p1
 %patch1023 -p1
 %patch1024 -p1
+%patch1025 -p1
+%patch1026 -p1
+%patch1027 -p1
+%patch1028 -p1
 #
 cp %{SOURCE3} .
 #
@@ -382,19 +390,19 @@ tar xjf %{SOURCE5}
 %endif
 
 # find the implicit dependencies
-%define winedir %_builddir/%prjname-%realver/
-cat >%winedir/my-find-requires.sh <<EOF
-#!/bin/bash
-%{__find_requires}
-%ifarch x86_64
-grep SONAME_ %winedir/config.log|grep -v 'so"'|sed -e 's/^.*"\(.*\)".*$/\1()(64bit)/;'|sort -u
-%else
-grep SONAME_ %winedir/config.log|grep -v 'so"'|sed -e 's/^.*"\(.*\)".*$/\1/;'|sort -u
-%endif
-EOF
-chmod 755 %winedir/my-find-requires.sh
-%define _use_internal_dependency_generator 0
-%define __find_requires %winedir/my-find-requires.sh
+##%define winedir %_builddir/%prjname-%realver/
+##cat >%winedir/my-find-requires.sh <<EOF
+###!/bin/bash
+##%{__find_requires}
+##%ifarch x86_64
+##grep SONAME_ %winedir/config.log|grep -v 'so"'|sed -e 's/^.*"\(.*\)".*$/\1()(64bit)/;'|sort -u
+##%else
+##grep SONAME_ %winedir/config.log|grep -v 'so"'|sed -e 's/^.*"\(.*\)".*$/\1/;'|sort -u
+##%endif
+##EOF
+##chmod 755 %winedir/my-find-requires.sh
+%define _use_internal_dependency_generator 1
+##%define __find_requires %winedir/my-find-requires.sh
 
 %clean
 rm -rf %{buildroot}
@@ -516,8 +524,4 @@ rm -rf %{buildroot}
 
 
 %changelog
-* Sat May 17 2014 Stan8 <stasiek0000@poczta.onet.pl> 1.7.19-Stan8
-+ Revision: a090e59
-- Updated wine-compholio.spec
-
 
