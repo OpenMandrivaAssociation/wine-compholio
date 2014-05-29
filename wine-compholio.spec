@@ -191,14 +191,9 @@ libraries.
 %patch1028 -p1
 
 %build
-# Steam wants proper %ebp frames to hook functions
-export RPM_OPT_FLAGS=`echo %{optflags}|sed -e 's/-fomit-frame-pointer//'`
-%if [ -f /usr/bin/gcc-4.7 ]; then
-	export CC=gcc-4.7
-%else
-export CC=gcc
-%endif
 
+export RPM_OPT_FLAGS=`echo %{optflags}|sed -e 's/-fomit-frame-pointer//'`
+export CC=gcc
 CFLAGS="-DLDAP_DEPRECATED=1 $RPM_OPT_FLAGS" \
 autoreconf
 %configure \
