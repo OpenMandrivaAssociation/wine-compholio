@@ -3,7 +3,11 @@
 
 %if 0%{?testpfx}
 %define _bindir %_prefix/bin
+%ifarch  x86_64
+%define _libdir %_prefix/lib64
+%else
 %define _libdir %_prefix/lib
+%endif
 %define _includedir %_prefix/include
 %define _mandir %_prefix/man
 %define _defaultdocdir %_prefix/share/doc
@@ -83,6 +87,8 @@ Patch0:         pdfpatch.patch
 Source1:        winetricks
 Source11:       winetricks.1
 Source2:        http://kegel.com/wine/wisotool
+Source4:        wine.desktop
+Source6:        wine-msi.desktop
 Source7:        baselibs.conf
 Source100:      wine-compholio.rpmlintrc
 
@@ -198,6 +204,9 @@ CFLAGS="-DLDAP_DEPRECATED=1 $RPM_OPT_FLAGS" \
 autoreconf
 %configure \
 	--with-x --verbose --with-xattr \
+%ifarch x86_64
+        --enable-win64 \
+%endif
 
 grep "have_x=yes" config.log || exit 1
 # Required for pipelight
@@ -227,6 +236,8 @@ make install DESTDIR=$RPM_BUILD_ROOT
 install -d %{buildroot}%{_datadir}/applications/
 install -m 0755 %{SOURCE1} %{buildroot}%{_bindir}/
 install -m 0755 %{SOURCE2} %{buildroot}%{_bindir}/
+install -m 0644 %{SOURCE4} %{buildroot}%{_datadir}/applications/
+install -m 0644 %{SOURCE6} %{buildroot}%{_datadir}/applications/
 mv %{buildroot}/%{_mandir}/de.UTF-8 %{buildroot}/%{_mandir}/de
 mv %{buildroot}/%{_mandir}/fr.UTF-8 %{buildroot}/%{_mandir}/fr
 mv %{buildroot}/%{_mandir}/pl.UTF-8 %{buildroot}/%{_mandir}/pl
