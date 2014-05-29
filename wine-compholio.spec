@@ -1,55 +1,18 @@
-#
-# spec file for package wine-pipelight
-#
-# Copyright (c) 2014 SUSE LINUX Products GmbH, Nuernberg, Germany.
-#
-# All modifications and additions to the file contributed by third parties
-# remain the property of their copyright owners, unless otherwise agreed
-# upon. The license for this file, and modifications and additions to the
-# file, is the same license as for the pristine package itself (unless the
-# license for the pristine package is not an Open Source License, in which
-# case the license is the MIT License). An "Open Source License" is a
-# license that conforms to the Open Source Definition (Version 1.9)
-# published by the Open Source Initiative.
-
-# Please submit bugfixes or comments via http://bugs.opensuse.org/
-#
-
-
-# The 32bit package (wine-32bit) can be obtained using the following command:
-#   osc build --baselibs --disable-debuginfo <openSUSE version> i586 wine.spec
-#
-# If the package is to be installed with a different prefix, change it here
-# using %%define _prefix /usr/lib/wine-<suffix>
 %define _prefix /opt/wine-compholio
-%define changedprefix %(test %_prefix != /usr && echo "1" || echo "0")
+%define testpfx %(test %_prefix != /usr && echo "1" || echo "0")
 
-%if 0%{?changedprefix}
+%if 0%{?testpfx}
 %define _bindir %_prefix/bin
-%ifarch  x86_64
-%define _libdir %_prefix/lib64
-%else
 %define _libdir %_prefix/lib
-%endif
-%define _mandir %_prefix/man
 %define _includedir %_prefix/include
+%define _mandir %_prefix/man
 %define _defaultdocdir %_prefix/share/doc
 %endif
+%define virtname wine
+#realname
+Name:	wine-compholio
 
-# The variable prjname points to the wine project name, and should therefor
-# probably stay the same forever.
-#
-# The package name, that is defined by the rpm tag Name, may be changed
-# which will result in a different package name.  In combination with a
-# different file path location (_prefix), it could be installed along side
-# the wine package that is provided by openSUSE (the distribution).
-%define prjname wine
-
-Name:           wine-compholio
-
-# Is this a native (openSUSE distribution) package?
-# modpkgname: Modified Package Name
-%define modpkgname %(test %name != "wine" && echo "1" || echo "0")
+%define testpname %(test %name != "wine" && echo "1" || echo "0")
 
 BuildRequires:	wget
 BuildRequires:	bison
@@ -110,27 +73,18 @@ BuildRequires:	prelink
 
 %define realver 1.7.19
 Version:        1.7.19
-Release:        1
+Release:        2
 Summary:        An MS Windows Emulator (with pipelight patches)
 License:        LGPL-2.1+
 Group:          Emulators
 Url:            http://www.winehq.org/
-Source0:        http://mirrors.ibiblio.org/wine/source/%(echo %version |cut -d. -f1-2)/%{prjname}-%{version}.tar.bz2
-#Source0:	http://77.254.128.249/src/%{prjname}/%{prjname}-%{version}.tar.bz2
-#Source42:	http://77.254.128.249/src/%{prjname}/%{prjname}-%{version}.tar.bz2.sign
-Source41:       wine.keyring
-Source42:       http://mirrors.ibiblio.org/wine/source/%(echo %version |cut -d. -f1-2)/%{prjname}-%{version}.tar.bz2.sign
-Patch0:         susepatches.patch
+Source0:        http://mirrors.ibiblio.org/wine/source/%(echo %version |cut -d. -f1-2)/%{virtname}-%{version}.tar.bz2
+Patch0:         pdfpatch.patch
 Source1:        winetricks
 Source11:       winetricks.1
 Source2:        http://kegel.com/wine/wisotool
-Source3:        README.SuSE
-Source4:        wine.desktop
-Source5:        ubuntuwine.tar.bz2
-Source6:        wine-msi.desktop
-
 Source7:        baselibs.conf
-Source100:      wine-compholio.rpmlintrc  
+Source100:      wine-compholio.rpmlintrc
 
 ### pipelight patches
 # From: http://fds-team.de/mirror/wine-patches-minimal.tar.gz (minimal patch set)
@@ -163,40 +117,23 @@ Patch1026:      0026-shlwapi-tests-Add-additional-tests-for-UrlCombine-and-.patc
 Patch1027:      0027-shlwapi-UrlCombineW-workaround-for-relative-paths.patch
 Patch1028:      0028-patch-list.patch
 
-%if %{modpkgname}
-  %if %{changedprefix}
-    %define pkgconflict 0
+%if %{testpname}
+  %if %{testpfx}
+    %define pconflict 0
   %else
-    %define pkgconflict 1
+    %define pconflict 1
 Conflicts:      wine
   %endif
 %else
-  %define pkgconflict 0
+  %define pconflict 0
 %endif
 
-%if 0%{?suse_version} > 1120
-%ifarch x86_64
-Requires:       %{name}32 = %{version}
-%endif
-%endif
-%ifarch %ix86 x86_64
 Requires:       wine-gecko >= 2.24
-%endif
-# for ntlm_auth helper
 Requires:       samba-winbind
-# wine-mp3 is built at Packman, not in OBS
-Recommends:     wine-mp3
-# We built it here, but it is kind of large
-Recommends:     wine-mono
-# for DOS support
-Recommends:     dosbox
-# To have correct Pulseaudio support.
-Recommends:     alsa-plugins
-Recommends:     alsa-plugins-pulse
-# for winetricks:
 Requires:       cabextract
 Requires:       unzip
-BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+Recommends:     alsa-plugins-pulse-config
+
 
 %description
 An MS Windows emulator, consisting of both runtime and also source
@@ -222,16 +159,8 @@ This RPM contains the header files and development tools for the WINE
 libraries.
 
 %prep
-%if 0%{?suse_version} > 1220
-%if ! %{modpkgname}
-%gpg_verify %{S:42}
-%endif
-%endif
 %setup -q -n wine-%realver
 %patch0 -p1
-
-### Netflix patches
-
 %patch1001 -p1
 %patch1002 -p1
 %patch1003 -p1
@@ -260,23 +189,12 @@ libraries.
 %patch1026 -p1
 %patch1027 -p1
 %patch1028 -p1
-#
-cp %{SOURCE3} .
-#
 
 %build
-cat VERSION
-%ifarch %ix86
 # Steam wants proper %ebp frames to hook functions
 export RPM_OPT_FLAGS=`echo %{optflags}|sed -e 's/-fomit-frame-pointer//'`
-%endif
-%if 0%{?suse_version} == 1110
-if [ -f /usr/bin/gcc-4.6 ]; then
-	export CC=gcc-4.6
-fi
-if [ -f /usr/bin/gcc-4.7 ]; then
+%if [ -f /usr/bin/gcc-4.7 ]; then
 	export CC=gcc-4.7
-fi
 %else
 export CC=gcc
 %endif
@@ -285,39 +203,26 @@ CFLAGS="-DLDAP_DEPRECATED=1 $RPM_OPT_FLAGS" \
 autoreconf
 %configure \
 	--with-x --verbose --with-xattr \
-%ifarch x86_64
-	--enable-win64 \
-%endif
 
 grep "have_x=yes" config.log || exit 1
 # Required for pipelight
 grep "xattr_h=yes" config.log || exit 1
 
 # generate baselibs.conf
-%ifarch %ix86
 grep SONAME_ config.log
 ( echo "# autogenerated in .spec file"
   echo "%name"
   echo " +^%{_prefix}/bin/wine\$"
   echo " +^%{_prefix}/bin/wine-preloader\$"
   echo " +^%{_prefix}/lib/wine/fakedlls"
-  %if %{pkgconflict}
+  %if %{pconflict}
     echo " conflicts \"wine\""
   %endif
   grep SONAME_ config.log|grep -v 'so"'|sed -e 's/^.*\(".*"\).*$/	requires \1/;'|sort -u
-%if 0%{?suse_version} >= 1210
-  echo " recommends \"alsa-plugins-pulse-32bit\""
-  echo " recommends \"alsa-plugins-32bit\""
-%endif
-%if 0%{?suse_version} >= 1310
-  echo " requires \"p11-kit-32bit\""
-%endif
   echo "%name-devel"
   echo "  +^%{_prefix}/lib/wine/.*def"
 ) > %SOURCE7
 cat %SOURCE7
-%endif
-
 make %{?_smp_mflags} depend
 make %{?_smp_mflags} all
 
@@ -325,8 +230,6 @@ make %{?_smp_mflags} all
 make install DESTDIR=$RPM_BUILD_ROOT
 # install desktop file
 install -d %{buildroot}%{_datadir}/applications/
-install -m 0644 %{SOURCE4} %{buildroot}%{_datadir}/applications/
-install -m 0644 %{SOURCE6} %{buildroot}%{_datadir}/applications/
 install -m 0755 %{SOURCE1} %{buildroot}%{_bindir}/
 install -m 0755 %{SOURCE2} %{buildroot}%{_bindir}/
 mv %{buildroot}/%{_mandir}/de.UTF-8 %{buildroot}/%{_mandir}/de
@@ -334,7 +237,7 @@ mv %{buildroot}/%{_mandir}/fr.UTF-8 %{buildroot}/%{_mandir}/fr
 mv %{buildroot}/%{_mandir}/pl.UTF-8 %{buildroot}/%{_mandir}/pl
 install -c %{SOURCE11} %{buildroot}/%{_mandir}/man1/
 
-%if 0%{?changedprefix}
+%if 0%{?testpfx}
 
   # When this wine package is not installed in the standard %prefix (/usr);
   # Create the doc directory
@@ -353,45 +256,6 @@ install -c %{SOURCE11} %{buildroot}/%{_mandir}/man1/
     ln -s winegcc.1.gz wineg++.1.gz
   )
 %endif
-
-tar xjf %{SOURCE5}
-# Copied from Ubuntu Wine out of debian.diff
-# https://launchpad.net/~ubuntu-wine/+archive/ppa/+packages
-# taken on 1.2rc2 time.
-( cd ubuntuwine
-
-  install -d %{buildroot}%{_sysconfdir}/xdg/menus/applications-merged
-  %if ! 0%{?changedprefix}
-    # Do not install the menu file, when the prefix has changed (it is not the default
-    # openSUSE package anymore).  A solution could be to change the installed file name
-    # to e.g. %%name.menu, but that could result in a duplicated menu structure, besides
-    # that the menu related files (.desktop, .directory, etc) probably not installed in
-    # a directory that is searched by the menu maker.  Leave it here as a todo item.
-    install -c -m 644 wine.menu %{buildroot}%{_sysconfdir}/xdg/menus/applications-merged
-  %endif
-
-  # Install application-specific desktop files
-  install -d %{buildroot}%{_datadir}/applications
-  install -c -m 644 *.desktop %{buildroot}%{_datadir}/applications/
-
-  install -d %{buildroot}%{_datadir}/desktop-directories/
-  install -c -m 644 *.directory %{buildroot}%{_datadir}/desktop-directories/
-
-  # Install icons
-  install -d %{buildroot}%{_datadir}/icons/hicolor/scalable/apps/
-  install -c -m 644 *.svg %{buildroot}%{_datadir}/icons/hicolor/scalable/apps/
-)
-
-# breaks btrfs installation, see bnc#723402
-# fdupes %{buildroot}
-
-%if 0%{?suse_version}
-%suse_update_desktop_file wine
-%endif
-
-
-%clean
-rm -rf %{buildroot}
 
 %post   -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
@@ -449,26 +313,8 @@ rm -rf %{buildroot}
 %doc %{_mandir}/man1/winemine.1.*
 %doc %{_mandir}/man1/winetricks.1.*
 %doc %{_mandir}/man1/winepath.1.*
-%dir %{_sysconfdir}/xdg/menus/
-%dir %{_sysconfdir}/xdg/menus/applications-merged
-%if ! 0%{?changedprefix}
-%config %{_sysconfdir}/xdg/menus/applications-merged/*.menu
-%endif
-%{_datadir}/applications/*.desktop
-%dir %{_datadir}/desktop-directories/
-%{_datadir}/desktop-directories/*.directory
-%dir %{_datadir}/icons/hicolor
-%dir %{_datadir}/icons/hicolor/scalable
-%dir %{_datadir}/icons/hicolor/scalable/apps
-%{_datadir}/icons/hicolor/scalable/apps/*.svg
-%ifarch %ix86
 %{_bindir}/wine
 %{_bindir}/wine-preloader
-%endif
-%ifarch x86_64
-%{_bindir}/wine64
-%{_bindir}/wine64-preloader
-%endif
 %ifarch ppc %arm
 %{_bindir}/wine
 %endif
@@ -480,7 +326,7 @@ rm -rf %{buildroot}
 
 %files devel
 %defattr(-,root,root)
-%if 0%{?changedprefix}
+%if 0%{?testpfx}
 %dir %_includedir
 %endif
 %{_includedir}/wine
