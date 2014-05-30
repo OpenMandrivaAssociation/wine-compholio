@@ -77,7 +77,7 @@ BuildRequires:	prelink
 
 %define realver 1.7.19
 Version:        1.7.19
-Release:        2
+Release:        3
 Summary:        An MS Windows Emulator (with pipelight patches)
 License:        LGPL-2.1+
 Group:          Emulators
