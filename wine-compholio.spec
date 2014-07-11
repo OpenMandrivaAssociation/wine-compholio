@@ -86,7 +86,7 @@ BuildRequires:	pkgconfig(fontconfig)
 BuildRequires:	pkgconfig(freetype2)
 %if "%{distepoch}" >= "2011.0"
 BuildRequires:	prelink
-
+%endif
 
 %ifarch x86_64
 %package -n	%{wine}
