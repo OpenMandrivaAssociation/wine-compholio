@@ -1,6 +1,3 @@
-%define compholio	v1.7.22
-%define rel		1
-
 %define	lib_major	1
 %define	lib_name	%mklibname %{name} %{lib_major}
 %define	lib_name_devel	%{mklibname -d %{name}}
@@ -9,8 +6,7 @@
 
 Name:		wine-compholio
 Version:	1.7.22
-Release:	%mkrel %rel
-Epoch:		1
+Release:	%mkrel 2
 Summary:	WINE Is Not An Emulator - runs MS Windows programs
 License:	LGPLv2+
 Group:		Emulators
