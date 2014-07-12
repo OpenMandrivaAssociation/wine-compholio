@@ -6,7 +6,8 @@
 
 Name:		wine-compholio
 Version:	1.7.22
-Release:	%mkrel 2
+Release:	%mkrel 3
+Epoch:      1
 Summary:	WINE Is Not An Emulator - runs MS Windows programs
 License:	LGPLv2+
 Group:		Emulators
