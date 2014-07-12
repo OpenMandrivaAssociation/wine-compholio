@@ -110,40 +110,11 @@ Group:		Emulators
 Requires:	%{name}-bin = %{epoch}:%{version}-%{release}
 %endif
 
-%define dlopenreq() %(F=/usr/%{_lib}/lib%{1}.so;[ -e $F ] && (file $F|grep -q ASCII && grep -o 'lib[^ ]*' $F|sed -e "s/\$/%{mark64}/"||objdump -p $F | grep SONAME | awk '{ print $2 "%{mark64}" }') || echo "wine-missing-buildrequires-on-%{1}")
-Requires:	%dlopenreq freetype
-Requires:	%dlopenreq asound
-Requires:	%dlopenreq fontconfig
-Requires:	%dlopenreq ncurses
-Requires:	%dlopenreq Xrender
-Requires:	%dlopenreq png
-Requires:	%dlopenreq Xcursor
-Requires:	%dlopenreq Xi
-Requires:	%dlopenreq Xxf86vm
-Requires:	%dlopenreq Xrandr
-Requires:	%dlopenreq Xinerama
-Requires:	%dlopenreq Xcomposite
-Requires:	%dlopenreq xslt
-Requires:	%dlopenreq dbus-1
-Requires:	%dlopenreq gnutls
-Requires:	%dlopenreq sane
-Requires:	%dlopenreq v4l1
-Requires:	%dlopenreq cups
-Requires:	%dlopenreq ssl
-Requires:	%dlopenreq crypto
-Requires:	%dlopenreq gsm
-Requires:	%dlopenreq jpeg
-Requires:	%dlopenreq tiff
-Requires:	%dlopenreq odbc
-Requires:	%dlopenreq OSMesa
-Requires:	%dlopenreq attr
-Suggests:	sane-frontends
-Requires(post): desktop-file-utils
-Requires(postun): desktop-file-utils
-Requires(post): desktop-common-data
-Requires(postun): desktop-common-data
-Requires(preun): rpm-helper
-Requires(post): rpm-helper
+Requires:       wine-gecko >= 2.24
+Requires:       samba-winbind
+Requires:       cabextract
+Requires:       unzip
+Recommends:     alsa-plugins-pulse-config
 
 %define desc Wine is a program which allows running Microsoft Windows programs \
 (including DOS, Windows 3.x and Win32 executables) on Unix. It \
