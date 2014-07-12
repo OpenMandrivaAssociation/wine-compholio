@@ -192,9 +192,9 @@ export CFLAGS="%{optflags} -fno-omit-frame-pointer"
 %endif
 export CFLAGS="$CFLAGS -DHAVE_ATTR_XATTR_H=1"
 %ifarch x86_64
-%configure2_5x	--with-x --with-xattr --without-gstreamer --enable-win64
+%configure	--with-x --with-xattr --without-gstreamer --enable-win64
 %else
-%configure2_5x	--with-x --with-xattr --without-gstreamer
+%configure	--with-x --with-xattr --without-gstreamer
 %endif
 %make depend
 %make
