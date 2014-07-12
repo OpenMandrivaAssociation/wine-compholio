@@ -190,6 +190,7 @@ make -C "patches" DESTDIR="%{_builddir}/wine-%{version}" install
 %ifarch %ix86
 export CFLAGS="%{optflags} -fno-omit-frame-pointer"
 %endif
+export CC=gcc
 export CFLAGS="$CFLAGS -DHAVE_ATTR_XATTR_H=1"
 %ifarch x86_64
 %configure	--with-x --with-xattr --without-gstreamer --enable-win64
