@@ -1,4 +1,4 @@
-%define compholio	v1.7.21
+%define compholio	v1.7.22
 %define rel		1
 
 %define	lib_major	1
@@ -8,16 +8,17 @@
 %define _fortify_cflags %nil
 
 Name:		wine-compholio
-Version:	1.7.21
+Version:	1.7.22
 Release:	%mkrel %rel
 Epoch:		1
 Summary:	WINE Is Not An Emulator - runs MS Windows programs
 License:	LGPLv2+
 Group:		Emulators
 URL:		http://www.winehq.com/
-Source0:	http://prdownloads.sourceforge.net/wine/wine-%{version}.tar.bz2
-Source1:	http://prdownloads.sourceforge.net/wine/wine-%{version}.tar.bz2.sign
-Source2:	https://github.com/compholio/wine-compholio-daily/archive/%{compholio}.tar.gz
+Source0:	http://mirrors.ibiblio.org/wine/source/1.7/wine-%{version}.tar.bz2
+Source1:	http://mirrors.ibiblio.org/wine/source/1.7/wine-%{version}.tar.bz2.sign
+Source2:	wine-compholio-1.7.22.tar.gz
+Source3:        wine-compholio.rpmlintrc
 
 %ifarch x86_64
 %define	wine	%{name}64
@@ -29,52 +30,60 @@ Source2:	https://github.com/compholio/wine-compholio-daily/archive/%{compholio}.
 
 %define _prefix /opt/%{name}
 Prefix:     /opt/%{name}
-
-BuildRequires:	bison flex
+BuildRequires:	wget
+BuildRequires:	bison
+BuildRequires:	flex
 BuildRequires:	gpm-devel
 BuildRequires:	perl-devel
-BuildRequires:	ncurses-devel
+BuildRequires:	pkgconfig(ncursesw)
 BuildRequires:	cups-devel
-BuildRequires:	sane-devel
-BuildRequires:	png-devel
-BuildRequires:	lcms-devel
+BuildRequires:	pkgconfig(sane-backends)
+BuildRequires:	pkgconfig(lcms)
 BuildRequires:	autoconf
-BuildRequires:	docbook-utils docbook-dtd-sgml sgml-tools
-BuildRequires:	pulseaudio-devel
-BuildRequires:	libmpg123-devel
-BuildRequires:	openal-devel
-BuildRequires:	icoutils
-BuildRequires:	libalsa-devel
-BuildRequires:	gstreamer0.10-devel libgstreamer0.10-plugins-base-devel
+BuildRequires:	docbook-utils
+BuildRequires:	docbook-dtd-sgml
+BuildRequires:	docbook-utils
+BuildRequires:	docbook-dtd-sgml
+BuildRequires:	sgml-tools
+BuildRequires:	pkgconfig(jack)
+BuildRequires:	pkgconfig(libpulse)
+BuildRequires:	pkgconfig(libmpg123)
+BuildRequires:	pkgconfig(openal)
+BuildRequires:	pkgconfig(alsa)
+BuildRequires:	pkgconfig(gstreamer-0.10)
+BuildRequires:	pkgconfig(gstreamer-plugins-base-0.10)
 BuildRequires:	isdn4k-utils-devel
 BuildRequires:	glibc-static-devel
 BuildRequires:	chrpath
-BuildRequires:	ungif-devel xpm-devel
-BuildRequires:	tiff-devel
-BuildRequires:	librsvg
-BuildRequires:	imagemagick 
-BuildRequires:	gphoto2-devel
+BuildRequires:	ungif-devel
+BuildRequires:	pkgconfig(xpm)
+BuildRequires:	pkgconfig(libtiff-4)
+BuildRequires:	pkgconfig(librsvg-2.0)
+BuildRequires:	imagemagick
+BuildRequires:	pkgconfig(libgphoto2)
 BuildRequires:	desktop-file-utils
-BuildRequires:	openldap-devel 
-BuildRequires:	libxslt-devel
-BuildRequires:	dbus-devel
-BuildRequires:	valgrind-devel
+BuildRequires:	openldap-devel
+BuildRequires:	pkgconfig(libxslt)
+BuildRequires:	pkgconfig(dbus-1)
+BuildRequires:	valgrind
 BuildRequires:	gsm-devel
 BuildRequires:	unixODBC-devel
-BuildRequires:	gnutls-devel
-BuildRequires:	prelink
+BuildRequires:	pkgconfig(gnutls)
 BuildRequires:	gettext-devel
-BuildRequires:	mesaglu-devel
-BuildRequires:	libv4l-devel
-BuildRequires:	libxcursor-devel libxcomposite-devel
-BuildRequires:	libxinerama-devel libxrandr-devel
-BuildRequires:	libx11-devel libxrender-devel
-BuildRequires:	libxext-devel libsm-devel
-BuildRequires:	fontforge fontconfig-devel freetype2-devel
-BuildRequires:	libxi-devel
-BuildRequires:	osmesa-devel
-BuildRequires:	opencl-devel
-BuildRequires:	attr-devel
+BuildRequires:	pkgconfig(glu)
+BuildRequires:	pkgconfig(libv4l2)
+BuildRequires:	pkgconfig(xcursor)
+BuildRequires:	pkgconfig(xcomposite)
+BuildRequires:	pkgconfig(xinerama) 
+BuildRequires:	pkgconfig(xrandr)
+BuildRequires:	pkgconfig(x11)
+BuildRequires:	pkgconfig(xrender)
+BuildRequires:	pkgconfig(xext)
+BuildRequires:	pkgconfig(sm)
+BuildRequires:	fontforge
+BuildRequires:	pkgconfig(fontconfig)
+BuildRequires:	pkgconfig(freetype2)
+BuildRequires:	prelink
 
 # Wine-compholio specific
 BuildRequires:	gawk unzip coreutils util-linux
@@ -174,7 +183,7 @@ develop programs which make use of wine.
 
 %prep
 %setup -q -n wine-%{version}
-/usr/bin/gzip -dc "%{SOURCE2}" | /usr/bin/tar -xf - --strip-components=1
+/usr/bin/gzip -dc "%{SOURCE2}" | /bin/tar -xf - --strip-components=1
 
 %build
 make -C "patches" DESTDIR="%{_builddir}/wine-%{version}" install
