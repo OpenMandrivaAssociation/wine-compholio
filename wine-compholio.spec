@@ -6,7 +6,7 @@
 
 Name:		wine-compholio
 Version:	1.7.22
-Release:	%mkrel 3
+Release:	%mkrel 4
 Epoch:		1
 Summary:	WINE Is Not An Emulator - runs MS Windows programs
 License:	LGPLv2+
@@ -27,6 +27,17 @@ Source3:        wine-compholio.rpmlintrc
 
 %define _prefix /opt/%{name}
 Prefix:     /opt/%{name}
+
+# (anssi) Wine needs GCC 4.4+ on x86_64 for MS ABI support. Note also that
+# 64-bit wine cannot run 32-bit programs without wine32.
+ExclusiveArch:	%{ix86}
+%if %{mdkversion} >= 201010
+ExclusiveArch:	x86_64
+%endif
+%ifarch x86_64
+BuildRequires:	gcc >= 4.4
+%endif
+
 BuildRequires:	wget
 BuildRequires:	bison
 BuildRequires:	flex
@@ -159,7 +170,11 @@ make -C "patches" DESTDIR="%{_builddir}/wine-%{version}" install
 %ifarch %ix86
 export CFLAGS="%{optflags} -fno-omit-frame-pointer"
 %endif
+
+# Clang doesn't support M$ ABI on 64bit
 export CC=gcc
+export CXX=g+
+
 export CFLAGS="$CFLAGS -DHAVE_ATTR_XATTR_H=1"
 %ifarch x86_64
 %configure	--with-x --with-xattr --without-gstreamer --enable-win64
