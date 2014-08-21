@@ -14,7 +14,7 @@ Group:		Emulators
 URL:		http://www.winehq.com/
 Source0:	http://mirrors.ibiblio.org/wine/source/1.7/wine-%{version}.tar.bz2
 Source1:	http://mirrors.ibiblio.org/wine/source/1.7/wine-%{version}.tar.bz2.sign
-Source2:	wine-compholio-%{version}.tar.gz # Taken from https://github.com/compholio/wine-compholio-daily/archive/v1.7.23.tar.gz
+Source2:	wine-compholio-%{version}.tar.gz # wine patches
 Source3:	wine-compholio.rpmlintrc
 
 %ifarch x86_64
