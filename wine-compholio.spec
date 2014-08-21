@@ -5,8 +5,8 @@
 %define _fortify_cflags %nil
 
 Name:		wine-compholio
-Version:	1.7.22
-Release:	%mkrel 4
+Version:	1.7.24
+Release:	1
 Epoch:		1
 Summary:	WINE Is Not An Emulator - runs MS Windows programs
 License:	LGPLv2+
@@ -14,7 +14,7 @@ Group:		Emulators
 URL:		http://www.winehq.com/
 Source0:	http://mirrors.ibiblio.org/wine/source/1.7/wine-%{version}.tar.bz2
 Source1:	http://mirrors.ibiblio.org/wine/source/1.7/wine-%{version}.tar.bz2.sign
-Source2:	wine-compholio-1.7.22.tar.gz
+Source2:	wine-compholio-%{version}.tar.gz
 Source3:        wine-compholio.rpmlintrc
 
 %ifarch x86_64
