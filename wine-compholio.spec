@@ -103,19 +103,20 @@ Summary:	WINE Is Not An Emulator - runs MS Windows programs
 Group:		Emulators
 %ifarch x86_64
 Conflicts:	%{name}
+Suggests:	%{name}-common = %{EVRD}
 %else
 Conflicts:	%{name}64
+Requires:	%{name}-common = %{EVRD}
 %endif
-Requires:	%{name}-common = %{epoch}:%{version}-%{release}
-Provides:	%{lib_name} = %{epoch}:%{version}-%{release}
-Obsoletes:	%{lib_name} <= %{epoch}:%{version}-%{release}
-Provides:	%{name}-bin = %{epoch}:%{version}-%{release}
+Provides:	%{lib_name} = %{EVRD}
+Obsoletes:	%{lib_name} <= %{EVRD}
+Provides:	%{name}-bin = %{EVRD}
 
 %ifarch %{ix86}
 %package -n	%{name}-common
 Summary:	WINE Is Not An Emulator - runs MS Windows programs (32-bit common files)
 Group:		Emulators
-Requires:	%{name}-bin = %{epoch}:%{version}-%{release}
+Requires:	%{name}-bin = %{EVRD}
 %endif
 
 
@@ -146,14 +147,14 @@ programs, and is used by both wine-compholio and wine-compholio64.
 %package -n	%{wine}-devel
 Summary:	Static libraries and headers for %{name} (64-bit)
 Group:		Development/C
-Requires:	%{wine} = %{epoch}:%{version}-%{release}
+Requires:	%{wine} = %{EVRD}
 %ifarch x86_64
 Conflicts:	%{name}-devel
 %else
 Conflicts:	%{name}64-devel
 %endif
-Provides:	%{lib_name_devel} = %{epoch}:%{version}-%{release}
-Obsoletes:	%{lib_name_devel} <= %{epoch}:%{version}-%{release}
+Provides:	%{lib_name_devel} = %{EVRD}
+Obsoletes:	%{lib_name_devel} <= %{EVRD}
 %description -n	%{wine}-devel
 Wine is a program which allows running Microsoft Windows programs
 (including DOS, Windows 3.x and Win32 executables) on Unix.
