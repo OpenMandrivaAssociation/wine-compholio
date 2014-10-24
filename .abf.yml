@@ -1,10 +1,12 @@
 removed_sources:
   wine-1.7.19.tar.bz2: ee142be03db09290b4adcdf1d412ee1850acd1e9
+  wine-1.7.28.tar.bz2: d217e4dbac4d69dda9a9cccaa3ed92366d958d23
   wine-compholio-1.7.22.tar.gz: 4c53424a724bb812b7895187bef2a08ef7789112
+  wine-compholio-1.7.28.tar.gz: 9dc6475af97528b46792b72adbc56ec994384f76
 sources:
   ubuntuwine.tar.bz2: 2eda50b3c2bbd642830ea727444616b548d94203
   wine-1.7.19.tar.bz2.sign: 91960e0f78c84f9b30f0ccfa024a878ee0a866ab
-  wine-1.7.28.tar.bz2: d217e4dbac4d69dda9a9cccaa3ed92366d958d23
   wine-1.7.28.tar.bz2.sign: 66a67813b63242ffbbc008ddd0d27d2ca72bf153
-  wine-compholio-1.7.28.tar.gz: 9dc6475af97528b46792b72adbc56ec994384f76
+  wine-1.7.29.tar.bz2: 581fcf915cba4cbf4f55f2e73b55439e090e96c5
+  wine-compholio-1.7.29.tar.gz: 31ed8f155fe28eb8b7b4de293c9d5e6d9969ef66
   wine.keyring: 171a6f5706d4bd44a5e34238bdb09a90b8a338c4
