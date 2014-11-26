@@ -10,5 +10,6 @@ sources:
   wine-1.7.19.tar.bz2.sign: 91960e0f78c84f9b30f0ccfa024a878ee0a866ab
   wine-1.7.28.tar.bz2.sign: 66a67813b63242ffbbc008ddd0d27d2ca72bf153
   wine-1.7.31.tar.bz2: bd856753043bf25ff330b9826cf3a6de3c48dd61
+  wine-1.7.31.tar.bz2.sign: c3285724c538c3aa4bcacad125d1240eae909304
   wine-compholio-1.7.31.tar.gz: b570892e8fbc58fcf7c1c1d8af60ecb786bf5354
   wine.keyring: 171a6f5706d4bd44a5e34238bdb09a90b8a338c4
