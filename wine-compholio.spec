@@ -5,8 +5,8 @@
 %define _fortify_cflags %nil
 
 Name:		wine-compholio
-Version:	1.7.31
-Release:	2
+Version:	1.7.33
+Release:	1
 Epoch:		1
 Summary:	WINE Is Not An Emulator - runs MS Windows programs
 License:	LGPLv2+
