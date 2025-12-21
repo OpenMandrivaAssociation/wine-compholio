@@ -35,6 +35,10 @@ ExclusiveArch:	%{ix86}
 ExclusiveArch:	x86_64
 %endif
 %ifarch x86_64
+BuildRequires:	automake
+BuildRequires:	libtool-base
+BuildRequires:	slibtool
+BuildRequires:	make
 BuildRequires:	gcc >= 4.4
 %endif
 
